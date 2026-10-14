@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  Suspense,
+  lazy,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -18,6 +24,8 @@ import {
 import "./App.css";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const ScrollWorldScene = lazy(() => import("./ScrollWorldScene.jsx"));
 
 const focusAreas = [
   {
@@ -77,6 +85,7 @@ const skillGroups = [
 
 function App() {
   const pageRef = useRef(null);
+  const sceneProgress = useRef({ value: 0 });
   const [submitStatus, setSubmitStatus] = useState("idle");
 
   async function handleContactSubmit(event) {
@@ -161,7 +170,7 @@ function App() {
           ease: "power3.inOut",
         });
 
-        gsap.utils.toArray("[data-reveal]").forEach((element) => {
+        page.querySelectorAll("[data-reveal]").forEach((element) => {
           gsap.from(element, {
             y: 38,
             autoAlpha: 0,
@@ -169,6 +178,455 @@ function App() {
             ease: "power2.out",
             scrollTrigger: { trigger: element, start: "top 86%", once: true },
           });
+        });
+
+        const profileGrid = page.querySelector(".profile-grid");
+        const profileHeading = page.querySelector(".profile-identity h2");
+        const profilePortrait = page.querySelector(".profile-portrait");
+        const profileCopy = page.querySelectorAll(".profile-body > *");
+        const profileStats = page.querySelectorAll(".profile-stats > div");
+        const hero = page.querySelector(".hero");
+        const heroVisual = page.querySelector(".hero-visual-wrap");
+        const heroStory = page.querySelector(".hero-story-copy");
+        const focusGrid = page.querySelector(".focus-grid");
+        const focusSection = page.querySelector(".focus-section");
+        const focusTrack = page.querySelector(".focus-track");
+        const focusCards = gsap.utils.toArray(".focus-card", page);
+        const experienceSection = page.querySelector(".experience-section");
+        const experienceInner = page.querySelector(".experience-inner");
+        const experienceEntry = page.querySelector(".experience-entry");
+        const skillsSection = page.querySelector(".skills-section");
+        const skillsGrid = page.querySelector(".skills-grid");
+        const skillsTrack = page.querySelector(".skills-track");
+        const skillGroups = gsap.utils.toArray(".skill-group", page);
+        const contactSection = page.querySelector(".contact-section");
+        const contactCopy = page.querySelector(".contact-copy");
+        const contactForm = page.querySelector(".contact-form");
+        const focusIcons = focusCards
+          .map((card) => card.querySelector(".focus-card-top svg"))
+          .filter(Boolean);
+        const focusTags = focusCards.flatMap((card) =>
+          Array.from(card.querySelectorAll(".focus-tags span")),
+        );
+        const sectionMotion = gsap.matchMedia();
+        sectionMotion.add("(min-width: 701px)", () => {
+          const heroTimeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: hero,
+              pin: hero,
+              start: "top top",
+              end: "+=1500",
+              scrub: 1,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          });
+          heroTimeline
+            .to(
+              ".hero-copy",
+              { yPercent: -38, autoAlpha: 0, duration: 0.24, ease: "none" },
+              0,
+            )
+            .to(
+              heroVisual,
+              {
+                width: "100vw",
+                height: "100svh",
+                right: 0,
+                scale: 1.045,
+                duration: 0.72,
+                ease: "none",
+              },
+              0,
+            )
+            .to(
+              ".hero-index, .hero-side-note, .hero-bottomline, .visual-caption, .visual-stamp",
+              { autoAlpha: 0, duration: 0.16, ease: "none" },
+              0.12,
+            )
+            .fromTo(
+              heroStory,
+              { y: 48, autoAlpha: 0 },
+              { y: 0, autoAlpha: 1, duration: 0.4, ease: "none" },
+              0.43,
+            )
+            .to(
+              ".hero-visual img",
+              { scale: 1.14, duration: 0.8, ease: "none" },
+              0.32,
+            )
+            .to(
+              heroStory,
+              { y: -36, autoAlpha: 0, duration: 0.25, ease: "none" },
+              0.82,
+            );
+
+          const profileTimeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: profileGrid,
+              pin: profileGrid,
+              start: "top top+=90",
+              end: "+=900",
+              scrub: 0.8,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          });
+          profileTimeline
+            .fromTo(
+              profileHeading,
+              { y: 42, autoAlpha: 0 },
+              { y: 0, autoAlpha: 1, duration: 0.22, ease: "none" },
+              0,
+            )
+            .fromTo(
+              profilePortrait,
+              { y: 58, autoAlpha: 0, clipPath: "inset(12% 0 0)" },
+              {
+                y: 0,
+                autoAlpha: 1,
+                clipPath: "inset(0% 0 0)",
+                duration: 0.42,
+                ease: "none",
+              },
+              0.12,
+            )
+            .fromTo(
+              profileCopy,
+              { y: 26, autoAlpha: 0 },
+              {
+                y: 0,
+                autoAlpha: 1,
+                duration: 0.42,
+                stagger: 0.12,
+                ease: "none",
+              },
+              0.18,
+            );
+
+          gsap.fromTo(
+            profileStats,
+            { y: 22, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.7,
+              stagger: 0.12,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: ".profile-stats",
+                start: "top 86%",
+                once: true,
+              },
+            },
+          );
+
+          const experienceTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: experienceSection,
+            pin: experienceInner,
+            start: "top top+=82",
+            end: "+=650",
+            scrub: 0.8,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+          });
+          experienceTimeline
+          .fromTo(
+            ".experience-heading h2",
+            { x: -60, autoAlpha: 0 },
+            { x: 0, autoAlpha: 1, duration: 0.4, ease: "none" },
+            0,
+          )
+          .fromTo(
+            experienceEntry,
+            { y: 65, autoAlpha: 0, clipPath: "inset(12% 0 0)" },
+            {
+              y: 0,
+              autoAlpha: 1,
+              clipPath: "inset(0% 0 0)",
+              duration: 0.55,
+              ease: "none",
+            },
+            0.18,
+          )
+          .fromTo(
+            ".experience-symbol",
+            { rotation: -90, scale: 0.65 },
+            { rotation: 0, scale: 1, duration: 0.35, ease: "none" },
+            0.38,
+          )
+          .fromTo(
+            ".experience-footnote",
+            { y: 20, autoAlpha: 0 },
+            { y: 0, autoAlpha: 1, duration: 0.35, ease: "none" },
+            0.45,
+          );
+
+          const focusTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: focusSection,
+            pin: focusSection,
+            start: "top top",
+            end: () =>
+              `+=${Math.max(
+                focusTrack.scrollWidth - focusGrid.clientWidth,
+                window.innerHeight * 0.8,
+              )}`,
+            scrub: 1,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+          });
+          focusTimeline
+          .fromTo(
+            focusTrack,
+            { x: 0 },
+            {
+              x: () => -(focusTrack.scrollWidth - focusGrid.clientWidth),
+              duration: 1,
+              ease: "none",
+            },
+            0,
+          )
+          .fromTo(
+            focusCards,
+            { scale: 0.88, autoAlpha: 0.55 },
+            {
+              scale: 1,
+              autoAlpha: 1,
+              duration: 0.5,
+              stagger: 0.14,
+              ease: "none",
+            },
+            0,
+          )
+          .fromTo(
+            focusIcons,
+            { rotation: -28, scale: 0.7 },
+              {
+                rotation: 0,
+                scale: 1,
+                duration: 0.4,
+                stagger: 0.12,
+                ease: "none",
+              },
+              0.1,
+            )
+            .fromTo(
+              focusTags,
+              { y: 12, autoAlpha: 0 },
+              {
+                y: 0,
+                autoAlpha: 1,
+                duration: 0.3,
+                stagger: 0.025,
+                ease: "none",
+              },
+              0.14,
+            );
+
+          const skillsTimeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: skillsSection,
+              pin: skillsSection,
+              start: "top top+=82",
+              end: () =>
+                `+=${Math.max(
+                  skillsTrack.scrollWidth - skillGroups[0].offsetWidth,
+                  window.innerHeight * 0.75,
+                )}`,
+              scrub: 1,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          });
+          skillsTimeline
+            .fromTo(
+              skillsTrack,
+              {
+                x: () =>
+                  Math.max(
+                    (skillsGrid.clientWidth - skillGroups[0].offsetWidth) / 2,
+                    0,
+                  ),
+              },
+              {
+                x: () =>
+                  -(
+                    skillsTrack.scrollWidth -
+                    skillsGrid.clientWidth +
+                    Math.max(
+                      (skillsGrid.clientWidth - skillGroups[0].offsetWidth) /
+                        2,
+                      0,
+                    )
+                  ),
+                duration: 1,
+                ease: "none",
+              },
+              0,
+            )
+            .fromTo(
+              skillGroups,
+              { y: 16, autoAlpha: 0.55, scale: 0.94 },
+              {
+                y: 0,
+                autoAlpha: 1,
+                scale: 1,
+                duration: 0.55,
+                stagger: 0.16,
+                ease: "none",
+              },
+              0,
+            )
+            .fromTo(
+              skillGroups.map((group) => group.querySelector("h3")),
+              { x: -24 },
+              { x: 0, duration: 0.38, stagger: 0.14, ease: "none" },
+              0.12,
+            );
+
+          const contactTimeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: contactSection,
+              start: "top 78%",
+              end: "center 48%",
+              scrub: 0.8,
+              invalidateOnRefresh: true,
+            },
+          });
+          contactTimeline
+            .fromTo(
+              contactCopy,
+              { x: -70, autoAlpha: 0 },
+              { x: 0, autoAlpha: 1, duration: 0.7, ease: "none" },
+              0,
+            )
+            .fromTo(
+              contactForm,
+              { x: 70, autoAlpha: 0, clipPath: "inset(0 0 0 12%)" },
+              {
+                x: 0,
+                autoAlpha: 1,
+                clipPath: "inset(0 0 0 0)",
+                duration: 0.7,
+                ease: "none",
+              },
+              0,
+            )
+            .fromTo(
+              ".contact-orbit--one",
+              { rotation: -24, scale: 0.86 },
+              { rotation: 0, scale: 1, duration: 1, ease: "none" },
+              0,
+            )
+            .fromTo(
+              ".contact-orbit--two",
+              { rotation: 32, scale: 1.2 },
+              { rotation: 0, scale: 1, duration: 1, ease: "none" },
+              0,
+            );
+        });
+
+        sectionMotion.add("(max-width: 700px)", () => {
+          gsap.fromTo(
+            [contactCopy, contactForm],
+            { y: 34, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.7,
+              stagger: 0.16,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: contactSection,
+                start: "top 78%",
+                once: true,
+              },
+            },
+          );
+          gsap.fromTo(
+            [profileHeading, profilePortrait, ...profileCopy],
+            { y: 32, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.75,
+              stagger: 0.1,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: profileGrid,
+                start: "top 82%",
+                once: true,
+              },
+            },
+          );
+          gsap.fromTo(
+            profileStats,
+            { y: 20, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.7,
+              stagger: 0.1,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: ".profile-stats",
+                start: "top 88%",
+                once: true,
+              },
+            },
+          );
+          gsap.fromTo(
+            focusCards,
+            { y: 42, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.7,
+              stagger: 0.15,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: focusGrid,
+                start: "top 84%",
+                once: true,
+              },
+            },
+          );
+          gsap.fromTo(
+            skillGroups,
+            { y: 36, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.7,
+              stagger: 0.14,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: skillsGrid,
+                start: "top 84%",
+                once: true,
+              },
+            },
+          );
+          gsap.fromTo(
+            [contactCopy, contactForm],
+            { y: 34, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.7,
+              stagger: 0.16,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: contactSection,
+                start: "top 78%",
+                once: true,
+              },
+            },
+          );
         });
 
         gsap.utils.toArray("[data-parallax]").forEach((frame) => {
@@ -197,110 +655,18 @@ function App() {
             scrub: true,
           },
         });
-        const story = gsap.timeline({
-          scrollTrigger: {
-            trigger: ".hero",
-            start: "top top",
-            end: "+=1800",
-            pin: true,
-            scrub: 0.8,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
+        ScrollTrigger.create({
+          trigger: document.documentElement,
+          start: "top top",
+          end: "bottom bottom",
+          onUpdate: (self) => {
+            sceneProgress.current.value = self.progress;
+          },
+          onRefresh: (self) => {
+            sceneProgress.current.value = self.progress;
           },
         });
-        story
-          .to(
-            ".hero-copy",
-            { yPercent: -15, autoAlpha: 0, duration: 0.22, ease: "none" },
-            0,
-          )
-          .to(
-            ".hero-visual-wrap",
-            {
-              top: 0,
-              right: 0,
-              width: "100vw",
-              height: "100svh",
-              margin: 0,
-              transform: "none",
-              duration: 0.42,
-              ease: "none",
-            },
-            0,
-          )
-          .to(
-            ".hero-visual",
-            { height: "100svh", minHeight: 0, duration: 0.42, ease: "none" },
-            0,
-          )
-          .to(".hero-visual img", { scale: 1.12, duration: 1, ease: "none" }, 0)
-          .to(
-            ".hero-bottomline, .hero-index, .hero-side-note, .visual-caption",
-            {
-              autoAlpha: 0,
-              duration: 0.12,
-            },
-            0.04,
-          )
-          .fromTo(
-            ".hero-story > p",
-            { autoAlpha: 0, y: 20 },
-            {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.16,
-              ease: "none",
-            },
-            0.28,
-          )
-          .fromTo(
-            ".hero-story-line--one",
-            { autoAlpha: 0, y: 90 },
-            {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.22,
-              ease: "none",
-            },
-            0.33,
-          )
-          .to(
-            ".hero-story-line--one",
-            { autoAlpha: 0, y: -55, duration: 0.18, ease: "none" },
-            0.55,
-          )
-          .to(
-            ".hero-story > p",
-            { autoAlpha: 0, duration: 0.12, ease: "none" },
-            0.55,
-          )
-          .fromTo(
-            ".hero-story-line--two",
-            { autoAlpha: 0, y: 90 },
-            {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.22,
-              ease: "none",
-            },
-            0.57,
-          )
-          .to(
-            ".hero-story-line--two",
-            { autoAlpha: 0, y: -35, duration: 0.15, ease: "none" },
-            0.8,
-          )
-          .fromTo(
-            ".hero-story-caption",
-            { autoAlpha: 0, y: 20 },
-            {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.18,
-              ease: "none",
-            },
-            0.84,
-          );
+        return () => sectionMotion.revert();
       },
       page,
     );
@@ -310,6 +676,9 @@ function App() {
 
   return (
     <div className="site-shell" ref={pageRef}>
+      <Suspense fallback={null}>
+        <ScrollWorldScene progress={sceneProgress} />
+      </Suspense>
       <div className="scroll-progress" aria-hidden="true" />
       <header className="site-header">
         <a className="wordmark" href="#inicio" aria-label="Iván, inicio">
@@ -357,36 +726,20 @@ function App() {
             <div className="hero-visual">
               <img
                 src="/79391832d4adf2092652f6d5ebe77a29.jpg"
-                alt="Espacio de oficina en Madrid"
+                alt=""
+                aria-hidden="true"
                 fetchPriority="high"
               />
-              <div className="visual-wash" />
-              <div className="hero-story" aria-hidden="true">
-                <p>ACCENTURE · MADRID</p>
-                <h2 className="hero-story-line hero-story-line--one">
-                  Desarrollo
-                  <br />
-                  <em>de software</em>
-                </h2>
-                <h2 className="hero-story-line hero-story-line--two">
-                  IA generativa
-                  <br />
-                  <em>en banca</em>
-                </h2>
-                <span className="hero-story-caption">
-                  ACCENTURE · PROYECTO BBVA
-                </span>
-              </div>
               <div className="visual-caption">
-                <span>ACCENTURE MADRID · OFICINA</span>
-                <span>40°25' N&nbsp; 3°42' W</span>
+                <span>SOFTWARE × IA GENERATIVA</span>
+                <span>UN RECORRIDO DIGITAL</span>
               </div>
               <div className="visual-stamp" aria-hidden="true">
                 <Sparkles size={22} strokeWidth={1.5} />
                 <span>
-                  Madrid
+                  Software
                   <br />
-                  España
+                  + IA
                 </span>
               </div>
             </div>
@@ -394,6 +747,15 @@ function App() {
               Construyendo desde dentro{" "}
               <ArrowDown size={14} aria-hidden="true" />
             </div>
+          </div>
+
+          <div className="hero-story-copy" aria-hidden="true">
+            <p>DISEÑO · INGENIERÍA · INTELIGENCIA ARTIFICIAL</p>
+            <h2>
+              Ideas que se
+              <br />
+              convierten en <em>producto.</em>
+            </h2>
           </div>
 
           <div className="hero-bottomline">
@@ -432,7 +794,7 @@ function App() {
             <span>UN PERFIL EN MOVIMIENTO</span>
           </div>
           <div className="profile-grid">
-            <div className="profile-identity" data-reveal>
+            <div className="profile-identity">
               <h2>
                 Sobre <em>mí</em>
               </h2>
@@ -445,7 +807,7 @@ function App() {
                 <figcaption>IVÁN SORIA ÁLVAREZ</figcaption>
               </figure>
             </div>
-            <div className="profile-body" data-reveal>
+            <div className="profile-body">
               <p className="profile-lead">
                 Desarrollo soluciones donde la ingeniería de software se cruza
                 con la inteligencia artificial.
@@ -465,7 +827,7 @@ function App() {
               </a>
             </div>
           </div>
-          <div className="profile-stats" data-reveal>
+          <div className="profile-stats">
             <div>
               <strong>Madrid</strong>
               <span>ubicación</span>
@@ -487,7 +849,7 @@ function App() {
               <span>02 / EXPERIENCIA</span>
               <span>ACTUALIDAD</span>
             </div>
-            <div className="experience-heading" data-reveal>
+            <div className="experience-heading">
               <h2>
                 Experiencia <em>profesional</em>
               </h2>
@@ -495,7 +857,7 @@ function App() {
                 Desarrollo de software e IA generativa en el sector financiero.
               </p>
             </div>
-            <article className="experience-entry" data-reveal>
+            <article className="experience-entry">
               <div className="experience-date">
                 <span>ACTUALIDAD</span>
                 <span>01 — PRESENTE</span>
@@ -518,7 +880,7 @@ function App() {
                 <ArrowUpRight size={27} strokeWidth={1.2} />
               </div>
             </article>
-            <div className="experience-footnote" data-reveal>
+            <div className="experience-footnote">
               <span>TECNOLOGÍAS DEL ENTORNO</span>
               <span>CELLS · ASO · APX · LRA · LRBA</span>
             </div>
@@ -540,29 +902,31 @@ function App() {
             </p>
           </div>
           <div className="focus-grid">
-            {focusAreas.map(
-              ({ number, icon: Icon, title, description, tags, className }) => (
-                <article
-                  className={`focus-card ${className}`}
-                  data-reveal
-                  key={number}
-                >
-                  <div className="focus-card-top">
-                    <span>{number} / 03</span>
-                    <Icon size={22} strokeWidth={1.5} aria-hidden="true" />
-                  </div>
-                  <div className="focus-card-content">
-                    <h3>{title}</h3>
-                    <p>{description}</p>
-                  </div>
-                  <div className="focus-tags">
-                    {tags.map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-                </article>
-              ),
-            )}
+            <div className="focus-track">
+              {focusAreas.map(
+                ({ number, icon: Icon, title, description, tags, className }) => (
+                  <article
+                    className={`focus-card ${className}`}
+                    data-index={number}
+                    key={number}
+                  >
+                    <div className="focus-card-top">
+                      <span>{number} / 03</span>
+                      <Icon size={22} strokeWidth={1.5} aria-hidden="true" />
+                    </div>
+                    <div className="focus-card-content">
+                      <h3>{title}</h3>
+                      <p>{description}</p>
+                    </div>
+                    <div className="focus-tags">
+                      {tags.map((tag) => (
+                        <span key={tag}>{tag}</span>
+                      ))}
+                    </div>
+                  </article>
+                ),
+              )}
+            </div>
           </div>
         </section>
 
@@ -581,23 +945,31 @@ function App() {
             </p>
           </div>
           <div className="skills-grid">
-            {skillGroups.map(
-              ({ number, icon: Icon, title, description, skills }) => (
-                <article className="skill-group" data-reveal key={number}>
-                  <div className="skill-group-top">
-                    <span>{number} / 03</span>
-                    <Icon size={20} strokeWidth={1.5} aria-hidden="true" />
-                  </div>
-                  <h3>{title}</h3>
-                  <p>{description}</p>
-                  <ul>
-                    {skills.map((skill) => (
-                      <li key={skill}>{skill}</li>
-                    ))}
-                  </ul>
-                </article>
-              ),
-            )}
+            <div className="skills-track">
+              {skillGroups.map(
+                ({ number, icon: Icon, title, description, skills }) => (
+                  <article
+                    className="skill-group"
+                    data-index={number}
+                    key={number}
+                  >
+                    <div className="skill-group-top">
+                      <span>{number} / 03</span>
+                      <Icon size={24} strokeWidth={1.5} aria-hidden="true" />
+                    </div>
+                    <div className="skill-group-content">
+                      <h3>{title}</h3>
+                      <p>{description}</p>
+                    </div>
+                    <ul>
+                      {skills.map((skill) => (
+                        <li key={skill}>{skill}</li>
+                      ))}
+                    </ul>
+                  </article>
+                ),
+              )}
+            </div>
           </div>
         </section>
 
@@ -611,7 +983,7 @@ function App() {
             aria-hidden="true"
           />
           <div className="section-wrap contact-layout">
-            <div className="contact-copy" data-reveal>
+            <div className="contact-copy">
               <div className="contact-kicker">
                 <span /> CONTACTO PROFESIONAL
               </div>
@@ -655,7 +1027,6 @@ function App() {
             <form
               className="contact-form"
               onSubmit={handleContactSubmit}
-              data-reveal
             >
               <div className="contact-form-heading">
                 <span>DESCRIBE TU PROYECTO</span>
